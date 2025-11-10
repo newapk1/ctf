@@ -9,7 +9,8 @@ const app = express();
 
 // Middleware setup
 app.set('view engine', 'ejs');
-app.set('views', path.resolve(process.cwd(), 'views'));
+// کۆدی نوێ
+app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({

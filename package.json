@@ -1,0 +1,17 @@
+{
+  "name": "yalla-ctf",
+  "version": "1.0.0",
+  "description": "A simple CTF challenge with a stored XSS vulnerability.",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.1",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}
