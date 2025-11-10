@@ -9,27 +9,42 @@ const app = express();
 
 // Middleware setup
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '..', 'views'));
+app.set('views', path.resolve(process.cwd(), 'views'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    secret: 'a-very-secret-key-for-ctf', // This should be a random string
+    secret: 'a-very-secret-key-for-ctf',
     resave: false,
     saveUninitialized: true,
 }));
 
-// Initial database setup (runs only once if the admin user doesn't exist)
-async function setupDatabase() {
-    const adminUser = await kv.hgetall('user:admin');
-    if (!adminUser) {
-        await kv.hset('user:admin', {
-            password: 'ThisIsAStrongAdminPassword_YouCannotGuessIt:)',
-            profile_name: 'The Administrator'
-        });
-        console.log('Admin user created in Vercel KV.');
+// ✅✅✅ چارەسەری کێشەکە لێرەدایە ✅✅✅
+// دروستکردنی Middlewareـێک بۆ دڵنیابوون لە بوونی هەژماری ئەدمین
+let isDbInitialized = false;
+const ensureAdminExists = async (req, res, next) => {
+    if (!isDbInitialized) {
+        try {
+            const adminUser = await kv.hgetall('user:admin');
+            if (!adminUser) {
+                await kv.hset('user:admin', {
+                    password: 'ThisIsAStrongAdminPassword_YouCannotGuessIt:)',
+                    profile_name: 'The Administrator'
+                });
+                console.log('Admin user created successfully in Vercel KV.');
+            }
+            isDbInitialized = true;
+        } catch (error) {
+            console.error("Database initialization failed:", error);
+            // ئەگەر هەڵەیەک ڕوویدا، ڕێگە بە بەردەوامبوون نادەین
+            return res.status(500).send("Failed to initialize database connection.");
+        }
     }
-}
-setupDatabase();
+    next(); // ئەگەر هەموو شتێک باش بوو، بەردەوام بە
+};
+
+// بەکارهێنانی Middlewareـەکە بۆ هەموو داواکارییەکان
+app.use(ensureAdminExists);
+
 
 // --- Routes ---
 
@@ -93,7 +108,7 @@ app.get('/dashboard', requireLogin, async (req, res) => {
 
     const userData = await kv.hgetall(`user:${viewingUser}`);
     if (!userData) {
-        return res.redirect('/dashboard'); // User not found, redirect to own dashboard
+        return res.redirect('/dashboard');
     }
 
     let allUsers = null;
@@ -116,9 +131,9 @@ app.post('/dashboard', requireLogin, async (req, res) => {
     const { new_name } = req.body;
 
     if (currentUser !== 'admin' && new_name) {
-        await kv.hset(`user:${currentUser}`, { profile_name: new_name });
+        const currentUserData = await kv.hgetall(`user:${currentUser}`);
+        await kv.hset(`user:${currentUser}`, { ...currentUserData, profile_name: new_name });
     }
-    // Redirect to prevent form resubmission
     res.redirect('/dashboard');
 });
 
@@ -145,4 +160,4 @@ app.get('/logout', (req, res) => {
     });
 });
 
-module.exports = app; // Export the app for Vercel
+module.exports = app;
