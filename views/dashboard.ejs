@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF - Dashboard</title>
+    <style>
+        /* هەمان ستایلی CSSی پێشوو لێرە دابنێ */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap' );
+        :root { --bg-color: #1a1a1a; --container-bg: #2c2c2c; --text-color: #e0e0e0; --primary-color: #00ff99; --secondary-color: #4d4d4d; --border-color: #444; }
+        body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 1.5rem; }
+        .container { max-width: 900px; margin: auto; background-color: var(--container-bg); padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .header h2 { margin: 0; color: var(--primary-color); }
+        .logout-link { color: #ff4d4d; text-decoration: none; font-weight: 700; }
+        .card { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 5px; padding: 1.5rem; margin-top: 1.5rem; }
+        .card h3 { margin-top: 0; border-bottom: 1px solid var(--secondary-color); padding-bottom: 0.5rem; color: var(--primary-color); }
+        #profile-name { font-size: 1.5em; color: #ffffff; word-wrap: break-word; }
+        input, button { width: 100%; padding: 0.8rem; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-color); font-family: inherit; box-sizing: border-box; margin-top: 0.5rem; }
+        button { background-color: var(--primary-color); color: #1a1a1a; font-weight: 700; cursor: pointer; }
+        .admin-panel ul { list-style: none; padding: 0; }
+        .admin-panel li a { display: block; padding: 0.5rem; color: var(--text-color); text-decoration: none; border-radius: 4px; transition: background-color 0.2s; }
+        .admin-panel li a:hover { background-color: var(--secondary-color); }
+        .message { padding: 1rem; background-color: rgba(0, 255, 153, 0.1); border: 1px solid var(--primary-color); border-radius: 4px; color: var(--primary-color); text-align: center; }
+        .submit-flag-link { display: block; text-align: center; margin: 1.5rem 0; font-weight: 700; color: var(--primary-color); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Dashboard</h2>
+            <a href="/logout" class="logout-link">[ Logout ]</a>
+        </div>
+        
+        <p>Welcome, <strong><%= currentUser %></strong>!</p>
+        <a href="/submit" class="submit-flag-link">>> Got the flag? Submit it here! <<</a>
+
+        <% if (message) { %><p class="message"><%= message %></p><% } %>
+
+        <div class="card profile">
+            <h3>Viewing Profile: <%= viewingUser %></h3>
+            <div id="profile-name">
+                Your name is: 
+                <%- userData.profile_name %>
+                <!-- ⚠️ The Stored XSS Vulnerability is here! -->
+                <!-- EJS uses <%- ... %> to output raw HTML, similar to `echo` in PHP -->
+            </div>
+        </div>
+
+        <% if (currentUser !== 'admin') { %>
+        <div class="card edit-profile">
+            <h3>Edit Your Profile Name</h3>
+            <form method="POST" action="/dashboard">
+                <input type="text" name="new_name" placeholder="Enter new profile name">
+                <button type="submit">Update Name</button>
+            </form>
+        </div>
+        <% } %>
+
+        <% if (currentUser === 'admin' && allUsers) { %>
+        <div class="card admin-panel">
+            <h3>Admin Panel: User Inspector</h3>
+            <ul>
+                <% allUsers.forEach(username => { %>
+                    <li><a href="?view_user=<%= username %>">Inspect profile of: <%= username %></a></li>
+                <% }) %>
+            </ul>
+        </div>
+        <% } %>
+    </div>
+</body>
+</html>
