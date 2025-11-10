@@ -9,18 +9,20 @@ const app = express();
 
 // Middleware setup
 app.set('view engine', 'ejs');
-// کۆدی نوێ
-app.set('views', path.join(__dirname, 'views'));
+// ✅✅✅ گۆڕانکاریی سەرەکی لێرەدایە ✅✅✅
+// ئێستا views لە تەنیشت index.jsـەوەیە
+app.set('views', path.join(__dirname, 'views')); 
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    secret: 'a-very-secret-key-for-ctf',
+    secret: 'a-very-secret-key-for-ctf-that-is-secure',
     resave: false,
     saveUninitialized: true,
+    cookie: { secure: false } // گرنگە بۆ کارکردن
 }));
 
-// ✅✅✅ چارەسەری کێشەکە لێرەدایە ✅✅✅
-// دروستکردنی Middlewareـێک بۆ دڵنیابوون لە بوونی هەژماری ئەدمین
+// Middleware بۆ دڵنیابوون لە بوونی هەژماری ئەدمین
 let isDbInitialized = false;
 const ensureAdminExists = async (req, res, next) => {
     if (!isDbInitialized) {
@@ -31,21 +33,16 @@ const ensureAdminExists = async (req, res, next) => {
                     password: 'ThisIsAStrongAdminPassword_YouCannotGuessIt:)',
                     profile_name: 'The Administrator'
                 });
-                console.log('Admin user created successfully in Vercel KV.');
             }
             isDbInitialized = true;
         } catch (error) {
             console.error("Database initialization failed:", error);
-            // ئەگەر هەڵەیەک ڕوویدا، ڕێگە بە بەردەوامبوون نادەین
-            return res.status(500).send("Failed to initialize database connection.");
+            return res.status(500).send("Database connection failed. Please try again later.");
         }
     }
-    next(); // ئەگەر هەموو شتێک باش بوو، بەردەوام بە
+    next();
 };
-
-// بەکارهێنانی Middlewareـەکە بۆ هەموو داواکارییەکان
 app.use(ensureAdminExists);
-
 
 // --- Routes ---
 
