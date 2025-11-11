@@ -66,7 +66,7 @@ app.post('/auth', async (req, res) => {
         if (user && password === user.password) {
             req.session.username = username;
             if (username === 'admin') {
-                const flag = "CTF{C00k1e_M0nst3r_Is_H4ppy_Now}";
+                const flag = "CTF{D4y_Q4yN4k4_BzH1Tttt_P3r0zZ4}";
                 res.cookie("admin_secret", flag, { maxAge: 3600000 });
             }
             return res.redirect('/dashboard');
@@ -126,7 +126,7 @@ app.get('/submit', requireLogin, (req, res) => {
 });
 
 app.post('/submit', requireLogin, (req, res) => {
-    const correct_flag = "CTF{D4y_Q4yN4k4_BzH1Tttt}";
+    const correct_flag = "CTF{D4y_Q4yN4k4_BzH1Tttt_P3r0zZ4}";
     const { flag } = req.body;
     if (flag && flag.trim() === correct_flag) {
         res.render('submit', { message: "Congratulations! You have successfully completed the challenge.", flag_correct: true });
