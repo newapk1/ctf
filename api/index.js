@@ -6,26 +6,17 @@ const { kv } = require('@vercel/kv');
 const path = require('path');
 
 const app = express();
-<<<<<<< HEAD
-app.set('view engine', 'ejs');
-=======
-app.set('view engine', 'ejs');ـەوەیە
->>>>>>> 05a44bcc51f7c2de63f35dfbb039bf576658cea0
-app.set('views', path.join(__dirname, 'views')); 
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
     secret: 'a-very-secret-key-for-ctf-that-is-secure',
     resave: false,
     saveUninitialized: true,
-<<<<<<< HEAD
     cookie: { secure: false }
-=======
-    cookie: { secure: false } 
->>>>>>> 05a44bcc51f7c2de63f35dfbb039bf576658cea0
 }));
-
 let isDbInitialized = false;
 const ensureAdminExists = async (req, res, next) => {
     if (!isDbInitialized) {
@@ -47,6 +38,8 @@ const ensureAdminExists = async (req, res, next) => {
 };
 app.use(ensureAdminExists);
 
+// --- Routes ---
+
 app.get('/', (req, res) => {
     if (req.session.username) {
         res.redirect('/dashboard');
@@ -57,11 +50,9 @@ app.get('/', (req, res) => {
 
 app.post('/auth', async (req, res) => {
     const { action, username, password } = req.body;
-
     if (!username || !password) {
         return res.render('index', { error: "Username and password are required." });
     }
-
     if (action === 'register') {
         const userExists = await kv.hgetall(`user:${username}`);
         if (userExists) {
@@ -70,7 +61,6 @@ app.post('/auth', async (req, res) => {
         await kv.hset(`user:${username}`, { password, profile_name: username });
         return res.render('index', { error: "Account created successfully. You can now log in." });
     }
-
     if (action === 'login') {
         const user = await kv.hgetall(`user:${username}`);
         if (user && password === user.password) {
@@ -93,29 +83,22 @@ function requireLogin(req, res, next) {
         next();
     }
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> 05a44bcc51f7c2de63f35dfbb039bf576658cea0
 app.get('/dashboard', requireLogin, async (req, res) => {
     const currentUser = req.session.username;
     let viewingUser = currentUser;
-    
     if (currentUser === 'admin' && req.query.view_user) {
         viewingUser = req.query.view_user;
     }
-
     const userData = await kv.hgetall(`user:${viewingUser}`);
     if (!userData) {
         return res.redirect('/dashboard');
     }
-
     let allUsers = null;
     if (currentUser === 'admin') {
         const userKeys = await kv.keys('user:*');
         allUsers = userKeys.map(key => key.replace('user:', ''));
     }
-
     res.render('dashboard', {
         currentUser,
         viewingUser,
@@ -127,24 +110,23 @@ app.get('/dashboard', requireLogin, async (req, res) => {
 
 app.post('/dashboard', requireLogin, async (req, res) => {
     const currentUser = req.session.username;
-    let { new_name } = req.body; // گۆڕینی const بۆ let
-
+    let { new_name } = req.body;
     if (currentUser !== 'admin' && new_name) {
         const scriptTagRegex = /<\s*script\s*>|<\/\s*script\s*>/gi;
-        new_name = new_name.replace(scriptTagRegex, ""); // سڕینەوەی تاگەکان
+        new_name = new_name.replace(scriptTagRegex, "");
+        
         const currentUserData = await kv.hgetall(`user:${currentUser}`);
         await kv.hset(`user:${currentUser}`, { ...currentUserData, profile_name: new_name });
     }
     res.redirect('/dashboard');
 });
 
-
 app.get('/submit', requireLogin, (req, res) => {
     res.render('submit', { message: null, flag_correct: false });
 });
 
 app.post('/submit', requireLogin, (req, res) => {
-    const correct_flag = "CTF{D4y_Q4yN4Ka_BzH1T}";
+    const correct_flag = "CTF{D4y_Q4yN4k4_BzH1Tttt}";
     const { flag } = req.body;
     if (flag && flag.trim() === correct_flag) {
         res.render('submit', { message: "Congratulations! You have successfully completed the challenge.", flag_correct: true });
