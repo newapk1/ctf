@@ -127,14 +127,17 @@ app.get('/dashboard', requireLogin, async (req, res) => {
 
 app.post('/dashboard', requireLogin, async (req, res) => {
     const currentUser = req.session.username;
-    const { new_name } = req.body;
+    let { new_name } = req.body; // گۆڕینی const بۆ let
 
     if (currentUser !== 'admin' && new_name) {
+        const scriptTagRegex = /<\s*script\s*>|<\/\s*script\s*>/gi;
+        new_name = new_name.replace(scriptTagRegex, ""); // سڕینەوەی تاگەکان
         const currentUserData = await kv.hgetall(`user:${currentUser}`);
         await kv.hset(`user:${currentUser}`, { ...currentUserData, profile_name: new_name });
     }
     res.redirect('/dashboard');
 });
+
 
 app.get('/submit', requireLogin, (req, res) => {
     res.render('submit', { message: null, flag_correct: false });
