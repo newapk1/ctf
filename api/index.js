@@ -6,11 +6,7 @@ const { kv } = require('@vercel/kv');
 const path = require('path');
 
 const app = express();
-
-// Middleware setup
-app.set('view engine', 'ejs');
-// ✅✅✅ گۆڕانکاریی سەرەکی لێرەدایە ✅✅✅
-// ئێستا views لە تەنیشت index.jsـەوەیە
+app.set('view engine', 'ejs');ـەوەیە
 app.set('views', path.join(__dirname, 'views')); 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,10 +15,9 @@ app.use(session({
     secret: 'a-very-secret-key-for-ctf-that-is-secure',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // گرنگە بۆ کارکردن
+    cookie: { secure: false } 
 }));
 
-// Middleware بۆ دڵنیابوون لە بوونی هەژماری ئەدمین
 let isDbInitialized = false;
 const ensureAdminExists = async (req, res, next) => {
     if (!isDbInitialized) {
@@ -44,9 +39,6 @@ const ensureAdminExists = async (req, res, next) => {
 };
 app.use(ensureAdminExists);
 
-// --- Routes ---
-
-// 1. Login and Register Page
 app.get('/', (req, res) => {
     if (req.session.username) {
         res.redirect('/dashboard');
@@ -86,7 +78,6 @@ app.post('/auth', async (req, res) => {
     }
 });
 
-// Middleware to check if user is logged in
 function requireLogin(req, res, next) {
     if (!req.session.username) {
         res.redirect('/');
@@ -94,8 +85,6 @@ function requireLogin(req, res, next) {
         next();
     }
 }
-
-// 2. Dashboard Page
 app.get('/dashboard', requireLogin, async (req, res) => {
     const currentUser = req.session.username;
     let viewingUser = currentUser;
@@ -141,7 +130,7 @@ app.get('/submit', requireLogin, (req, res) => {
 });
 
 app.post('/submit', requireLogin, (req, res) => {
-    const correct_flag = "CTF{C00k1e_M0nst3r_Is_H4ppy_Now}";
+    const correct_flag = "CTF{D4y_Q4yN4Ka_BzH1T}";
     const { flag } = req.body;
     if (flag && flag.trim() === correct_flag) {
         res.render('submit', { message: "Congratulations! You have successfully completed the challenge.", flag_correct: true });
