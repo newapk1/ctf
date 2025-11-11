@@ -6,7 +6,11 @@ const { kv } = require('@vercel/kv');
 const path = require('path');
 
 const app = express();
+<<<<<<< HEAD
 app.set('view engine', 'ejs');
+=======
+app.set('view engine', 'ejs');ـەوەیە
+>>>>>>> 05a44bcc51f7c2de63f35dfbb039bf576658cea0
 app.set('views', path.join(__dirname, 'views')); 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,7 +19,11 @@ app.use(session({
     secret: 'a-very-secret-key-for-ctf-that-is-secure',
     resave: false,
     saveUninitialized: true,
+<<<<<<< HEAD
     cookie: { secure: false }
+=======
+    cookie: { secure: false } 
+>>>>>>> 05a44bcc51f7c2de63f35dfbb039bf576658cea0
 }));
 
 let isDbInitialized = false;
@@ -85,7 +93,10 @@ function requireLogin(req, res, next) {
         next();
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 05a44bcc51f7c2de63f35dfbb039bf576658cea0
 app.get('/dashboard', requireLogin, async (req, res) => {
     const currentUser = req.session.username;
     let viewingUser = currentUser;
@@ -130,7 +141,7 @@ app.get('/submit', requireLogin, (req, res) => {
 });
 
 app.post('/submit', requireLogin, (req, res) => {
-    const correct_flag = "CTF{C00k1e_M0nst3r_Is_H4ppy_Now}";
+    const correct_flag = "CTF{D4y_Q4yN4Ka_BzH1T}";
     const { flag } = req.body;
     if (flag && flag.trim() === correct_flag) {
         res.render('submit', { message: "Congratulations! You have successfully completed the challenge.", flag_correct: true });

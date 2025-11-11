@@ -41,8 +41,6 @@
             <div id="profile-name">
                 Your name is: 
                 <%- userData.profile_name %>
-                <!-- ⚠️ The Stored XSS Vulnerability is here! -->
-                <!-- EJS uses <%- ... %> to output raw HTML, similar to `echo` in PHP -->
             </div>
         </div>
 
